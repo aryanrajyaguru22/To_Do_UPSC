@@ -35,7 +35,7 @@
             max-width: 800px;
             background-color: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px S12px rgba(0, 0, 0, 0.08);
             padding: 25px 35px;
         }
 
@@ -56,6 +56,17 @@
             color: var(--subtle-text);
             margin-top: 5px;
         }
+
+        #datetime-container {
+            font-size: 0.95rem;
+            color: var(--subtle-text);
+            font-weight: 600;
+            margin-top: 12px;
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
         
         #current-date-info {
             font-size: 0.9rem;
@@ -65,7 +76,7 @@
             padding: 8px 12px;
             border-radius: 6px;
             margin-top: 15px;
-            display: inline-block;
+            display: block; /* Changed to block for better spacing */
         }
 
         .progress-section {
@@ -171,6 +182,9 @@
         <header>
             <h1 id="phase-name">Loading Schedule...</h1>
             <p id="phase-details"></p>
+            <div id="datetime-container">
+                <span id="current-date"></span> &nbsp;|&nbsp; <span id="current-time"></span>
+            </div>
             <p id="current-date-info"></p>
         </header>
 
@@ -193,106 +207,115 @@
         document.addEventListener('DOMContentLoaded', function () {
             const timetableData = [
                 {
-                    "phase_name": "Phase 1: UPSC + College Prep",
-                    "date_range": "4 Oct - 17 Oct 2025",
+                     "phase_name": "Phase 1: UPSC + College Prep" /* [cite: 1] */,
+                     "date_range": "4 Oct - 17 Oct 2025" /* [cite: 1] */,
                     "schedule": [
-                        {"time": "6:30-7:00", "activity": "Wake up + Exercise"},
-                        {"time": "7:00-9:30", "activity": "UPSC GS (History/Polity/Economy)"},
-                        {"time": "9:30-10:00", "activity": "Breakfast"},
-                        {"time": "10:00-12:30", "activity": "UPSC Optional / NCERT Foundation"},
-                        {"time": "12:30-1:00", "activity": "Lunch"},
-                        {"time": "1:00-3:00", "activity": "Compiler Design (Units)"},
-                        {"time": "3:00-4:00", "activity": "Break / Walk"},
-                        {"time": "4:00-6:00", "activity": "Cyber Security / NLP (alternate)"},
-                        {"time": "6:00-7:00", "activity": "UPSC Current Affairs + Notes"},
-                        {"time": "7:00-8:00", "activity": "Dinner"},
-                        {"time": "8:00-9:30", "activity": "Image Processing / NLP (alternate)"},
-                        {"time": "9:30-10:15", "activity": "UPSC Answer Writing (1 Q/Essay)"},
-                        {"time": "10:30", "activity": "Sleep"}
+                         {"time": "6:30-7:00", "activity": "Wake up + Exercise"} /*   */,
+                         {"time": "7:00-9:30", "activity": "UPSC GS (History/Polity/Economy)"} /*   */,
+                         {"time": "9:30-10:00", "activity": "Breakfast"} /*   */,
+                         {"time": "10:00-12:30", "activity": "UPSC Optional / NCERT Foundation"} /*   */,
+                         {"time": "12:30-1:00", "activity": "Lunch"} /*   */,
+                         {"time": "1:00-3:00", "activity": "Compiler Design (Units)"} /*   */,
+                         {"time": "3:00-4:00", "activity": "Break / Walk"} /*   */,
+                         {"time": "4:00-6:00", "activity": "Cyber Security / NLP (alternate)"} /*   */,
+                         {"time": "6:00-7:00", "activity": "UPSC Current Affairs + Notes"} /*   */,
+                         {"time": "7:00-8:00", "activity": "Dinner"} /*   */,
+                         {"time": "8:00-9:30", "activity": "Image Processing / NLP (alternate)"} /*   */,
+                         {"time": "9:30-10:15", "activity": "UPSC Answer Writing (1 Q/Essay)"} /*   */,
+                         {"time": "10:30", "activity": "Sleep"} /*   */
                     ]
                 },
                 {
-                    "phase_name": "Phase 2: Festival Holidays",
-                    "date_range": "18 Oct - 25 Oct 2025",
+                     "phase_name": "Phase 2: Festival Holidays" /*   */,
+                     "date_range": "18 Oct - 25 Oct 2025" /*   */,
                     "schedule": [],
-                    "notes": "Full Day Holiday (Diwali & New Year). No Study."
+                    "notes": "Full Day Holiday (Diwali & New Year). No Study."  /*   */
                 },
                 {
-                    "phase_name": "Phase 3: Exam-Oriented Prep",
-                    "date_range": "26 Oct - 6 Nov 2025",
+                     "phase_name": "Phase 3: Exam-Oriented Prep" /* [cite: 5] */,
+                     "date_range": "26 Oct - 6 Nov 2025" /* [cite: 5] */,
                     "schedule": [
-                        {"time": "6:30-7:00", "activity": "Wake up & News"},
-                        {"time": "7:00-8:00", "activity": "UPSC GS Quick Notes"},
-                        {"time": "8:00-9:00", "activity": "UPSC Current Affairs"},
-                        {"time": "9:00-11:00", "activity": "Compiler Design (Revision/Units)"},
-                        {"time": "11:00-1:00", "activity": "Cyber Security (Revision/Units)"},
-                        {"time": "1:00-2:00", "activity": "Lunch + Rest"},
-                        {"time": "2:00-4:00", "activity": "NLP (Revision/Units)"},
-                        {"time": "4:00-5:30", "activity": "Image Processing (Revision/Units)"},
-                        {"time": "5:30-7:00", "activity": "Compiler Practice / Mock Paper"},
-                        {"time": "7:00-8:00", "activity": "Dinner"},
-                        {"time": "8:00-9:30", "activity": "Cyber/NLP/IP (alternate revision)"},
-                        {"time": "9:30-10:00", "activity": "Quick UPSC Writing (1Q)"},
-                        {"time": "10:30", "activity": "Sleep"}
+                         {"time": "6:30-7:00", "activity": "Wake up & News"} /*   */,
+                         {"time": "7:00-8:00", "activity": "UPSC GS Quick Notes"} /*   */,
+                         {"time": "8:00-9:00", "activity": "UPSC Current Affairs"} /*   */,
+                         {"time": "9:00-11:00", "activity": "Compiler Design (Revision/Units)"} /*   */,
+                         {"time": "11:00-1:00", "activity": "Cyber Security (Revision/Units)"} /*   */,
+                         {"time": "1:00-2:00", "activity": "Lunch + Rest"} /*   */,
+                         {"time": "2:00-4:00", "activity": "NLP (Revision/Units)"} /*   */,
+                         {"time": "4:00-5:30", "activity": "Image Processing (Revision/Units)"} /*   */,
+                         {"time": "5:30-7:00", "activity": "Compiler Practice / Mock Paper"} /*   */,
+                         {"time": "7:00-8:00", "activity": "Dinner"} /*   */,
+                         {"time": "8:00-9:30", "activity": "Cyber/NLP/IP (alternate revision)"} /*   */,
+                         {"time": "9:30-10:00", "activity": "Quick UPSC Writing (1Q)"} /*   */,
+                         {"time": "10:30", "activity": "Sleep"} /*   */
                     ]
                 },
                 {
-                    "phase_name": "Phase 4: Exam Days",
-                    "date_range": "7 Nov - 17 Nov 2025",
+                     "phase_name": "Phase 4: Exam Days" /*   */,
+                     "date_range": "7 Nov - 17 Nov 2025" /*   */,
                     "daily_schedule": [
-                        {"time": "6:30-7:00", "activity": "Wake up"},
-                        {"time": "7:00-8:00", "activity": "UPSC Current Affairs (light)"},
-                        {"time": "8:00-12:00", "activity": "Subject Revision (next exam focus)"},
-                        {"time": "12:00-1:00", "activity": "Lunch"},
-                        {"time": "1:00-4:00", "activity": "Subject Mock Q&A"},
-                        {"time": "4:00-6:00", "activity": "Revision of key formulas/points"},
-                        {"time": "6:00-7:00", "activity": "Break + Dinner"},
-                        {"time": "7:00-9:30", "activity": "Subject Revision (last touch)"},
-                        {"time": "10:00", "activity": "Sleep"}
+                         {"time": "6:30-7:00", "activity": "Wake up"} /*   */,
+                         {"time": "7:00-8:00", "activity": "UPSC Current Affairs (light)"} /*   */,
+                         {"time": "8:00-12:00", "activity": "Subject Revision (next exam focus)"} /*   */,
+                         {"time": "12:00-1:00", "activity": "Lunch"} /*   */,
+                         {"time": "1:00-4:00", "activity": "Subject Mock Q&A"} /*   */,
+                         {"time": "4:00-6:00", "activity": "Revision of key formulas/points"} /*   */,
+                         {"time": "6:00-7:00", "activity": "Break + Dinner"} /*   */,
+                         {"time": "7:00-9:30", "activity": "Subject Revision (last touch)"} /*   */,
+                         {"time": "10:00", "activity": "Sleep"} /*   */
                     ],
                     "exam_allocation": [
-                        {"date": "6 Nov", "focus": "Compiler Full Revision"},
-                        {"date": "7 Nov", "focus": "Compiler Exam"},
-                        {"date": "8-10 Nov", "focus": "Cyber Security Revision"},
-                        {"date": "11 Nov", "focus": "Cyber Security Exam"},
-                        {"date": "12 Nov", "focus": "NLP Full Revision"},
-                        {"date": "13 Nov", "focus": "NLP Exam"},
-                        {"date": "14-16 Nov", "focus": "Image Processing Revision"},
-                        {"date": "17 Nov", "focus": "Image Processing Exam"}
+                         {"date": "6 Nov", "focus": "Compiler Full Revision"} /*   */,
+                         {"date": "7 Nov", "focus": "Compiler Exam"} /*   */,
+                         {"date": "8-10 Nov", "focus": "Cyber Security Revision"} /*   */,
+                         {"date": "11 Nov", "focus": "Cyber Security Exam"} /*   */,
+                         {"date": "12 Nov", "focus": "NLP Full Revision"} /*   */,
+                         {"date": "13 Nov", "focus": "NLP Exam"} /*   */,
+                         {"date": "14-16 Nov", "focus": "Image Processing Revision"} /*   */,
+                         {"date": "17 Nov", "focus": "Image Processing Exam"} /*   */
                     ]
                 }
             ];
 
+            // Get references to all HTML elements
             const phaseNameEl = document.getElementById('phase-name');
             const phaseDetailsEl = document.getElementById('phase-details');
             const currentDateInfoEl = document.getElementById('current-date-info');
+            const currentDateEl = document.getElementById('current-date');
+            const currentTimeEl = document.getElementById('current-time');
             const taskListEl = document.getElementById('task-list');
             const progressBarEl = document.getElementById('progress-bar');
             const progressTextEl = document.getElementById('progress-text');
             const examScheduleSection = document.getElementById('exam-schedule');
             const examScheduleListEl = document.getElementById('exam-schedule-list');
             
-            // NOTE: Using a fixed date for demonstration based on user context.
-            // Replace with `new Date()` for real-time use.
-            const now = new Date('2025-10-03T21:14:00');
+            // NOTE: Using a fixed date for schedule phase detection based on user context.
+            // The live clock below uses the actual current time.
+            const phaseDetectionDate = new Date('2025-10-03T21:18:59');
 
+            // --- Real-Time Clock Function ---
+            function updateTime() {
+                const now = new Date();
+                const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                currentDateEl.textContent = now.toLocaleDateString('en-IN', dateOptions);
+                currentTimeEl.textContent = now.toLocaleTimeString('en-IN');
+            }
+            
             function getCurrentPhase(currentDate) {
                 for (const phase of timetableData) {
                     const [startDateStr, endDateStr] = phase.date_range.split(' - ');
                     const startDate = new Date(startDateStr);
                     const endDate = new Date(endDateStr);
-                    // Set hours to end of day for accurate range comparison
                     endDate.setHours(23, 59, 59, 999);
 
                     if (currentDate >= startDate && currentDate <= endDate) {
                         return phase;
                     }
                 }
-                // Default to first phase if no phase is active (e.g., before Oct 4)
-                return timetableData[0];
+                return timetableData[0]; // Default to first phase if outside all ranges
             }
 
-            const currentPhase = getCurrentPhase(now);
+            const currentPhase = getCurrentPhase(phaseDetectionDate);
             const schedule = currentPhase.schedule || currentPhase.daily_schedule;
             let progressState = {};
 
@@ -311,8 +334,8 @@
 
             function renderSchedule() {
                 phaseNameEl.textContent = currentPhase.phase_name;
-                phaseDetailsEl.textContent = currentPhase.date_range.replace(' 2025', ''); // Clean up display
-                currentDateInfoEl.textContent = `Displaying schedule based on current date: ${now.toLocaleDateString()}`;
+                phaseDetailsEl.textContent = currentPhase.date_range.replace(' 2025', '');
+                currentDateInfoEl.textContent = `Schedule displayed for phase covering: ${phaseDetectionDate.toLocaleDateString()}`;
 
                 if (schedule && schedule.length > 0) {
                     const ul = document.createElement('ul');
@@ -320,7 +343,6 @@
                         const isCompleted = progressState[index] === true;
                         const li = document.createElement('li');
                         li.className = isCompleted ? 'completed' : '';
-                        
                         li.innerHTML = `
                             <input type="checkbox" class="task-checkbox" data-index="${index}" ${isCompleted ? 'checked' : ''}>
                             <span class="time-slot">${task.time}</span>
@@ -352,7 +374,7 @@
                 const totalTasks = schedule ? schedule.length : 0;
                 if (totalTasks === 0) {
                     progressBarEl.style.width = '100%';
-                    progressTextEl.textContent = 'No tasks for today!';
+                    progressTextEl.textContent = 'No tasks for this phase!';
                     progressBarEl.style.backgroundColor = 'var(--subtle-text)';
                     return;
                 }
@@ -369,16 +391,19 @@
                 if (e.target.matches('.task-checkbox')) {
                     const index = e.target.dataset.index;
                     const isChecked = e.target.checked;
-                    
                     progressState[index] = isChecked;
                     e.target.closest('li').classList.toggle('completed', isChecked);
-                    
                     saveProgress();
                     updateProgress();
                 }
             });
 
-            // Initial load
+            // --- INITIALIZATION ---
+            // Run the clock immediately and then every second
+            updateTime();
+            setInterval(updateTime, 1000);
+
+            // Load the rest of the application
             loadProgress();
             renderSchedule();
             updateProgress();
