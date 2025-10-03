@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC & College Daily Schedule</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --subtle-text: #6c757d;
+            --accent-color: #007bff;
+            --progress-bar-bg: #e9ecef;
+            --completed-color: #28a745;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px 35px;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        #phase-details {
+            font-size: 1rem;
+            color: var(--subtle-text);
+            margin-top: 5px;
+        }
+        
+        #current-date-info {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            background-color: rgba(0, 123, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--progress-bar-bg);
+            border-radius: 20px;
+            height: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--accent-color);
+            border-radius: 20px;
+            transition: width 0.4s ease-in-out;
+        }
+
+        #progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        #task-list ul, #exam-schedule-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #task-list li, #exam-schedule-list li {
+            display: flex;
+            align-items: center;
+            padding: 15px 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        #task-list li:last-child, #exam-schedule-list li:last-child {
+            border-bottom: none;
+        }
+        
+        #task-list li:hover {
+            background-color: #f8f9fa;
+        }
+
+        #task-list li.completed {
+            opacity: 0.6;
+        }
+
+        #task-list li.completed .activity-details {
+            text-decoration: line-through;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .time-slot {
+            font-weight: 600;
+            width: 120px;
+            flex-shrink: 0;
+            color: var(--accent-color);
+        }
+
+        .activity-details {
+            flex-grow: 1;
+        }
+        
+        #no-study-note {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--subtle-text);
+        }
+
+        #exam-schedule {
+            margin-top: 40px;
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 id="phase-name">Loading Schedule...</h1>
+            <p id="phase-details"></p>
+            <p id="current-date-info"></p>
+        </header>
+
+        <section class="progress-section">
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+                <span id="progress-text">0% Complete</span>
+            </div>
+        </section>
+
+        <main id="task-list"></main>
+        
+        <section id="exam-schedule" style="display:none;">
+            <h2>Exam Focus</h2>
+            <div id="exam-schedule-list"></div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const timetableData = [
+                {
+                    "phase_name": "Phase 1: UPSC + College Prep",
+                    "date_range": "4 Oct - 17 Oct 2025",
+                    "schedule": [
+                        {"time": "6:30-7:00", "activity": "Wake up + Exercise"},
+                        {"time": "7:00-9:30", "activity": "UPSC GS (History/Polity/Economy)"},
+                        {"time": "9:30-10:00", "activity": "Breakfast"},
+                        {"time": "10:00-12:30", "activity": "UPSC Optional / NCERT Foundation"},
+                        {"time": "12:30-1:00", "activity": "Lunch"},
+                        {"time": "1:00-3:00", "activity": "Compiler Design (Units)"},
+                        {"time": "3:00-4:00", "activity": "Break / Walk"},
+                        {"time": "4:00-6:00", "activity": "Cyber Security / NLP (alternate)"},
+                        {"time": "6:00-7:00", "activity": "UPSC Current Affairs + Notes"},
+                        {"time": "7:00-8:00", "activity": "Dinner"},
+                        {"time": "8:00-9:30", "activity": "Image Processing / NLP (alternate)"},
+                        {"time": "9:30-10:15", "activity": "UPSC Answer Writing (1 Q/Essay)"},
+                        {"time": "10:30", "activity": "Sleep"}
+                    ]
+                },
+                {
+                    "phase_name": "Phase 2: Festival Holidays",
+                    "date_range": "18 Oct - 25 Oct 2025",
+                    "schedule": [],
+                    "notes": "Full Day Holiday (Diwali & New Year). No Study."
+                },
+                {
+                    "phase_name": "Phase 3: Exam-Oriented Prep",
+                    "date_range": "26 Oct - 6 Nov 2025",
+                    "schedule": [
+                        {"time": "6:30-7:00", "activity": "Wake up & News"},
+                        {"time": "7:00-8:00", "activity": "UPSC GS Quick Notes"},
+                        {"time": "8:00-9:00", "activity": "UPSC Current Affairs"},
+                        {"time": "9:00-11:00", "activity": "Compiler Design (Revision/Units)"},
+                        {"time": "11:00-1:00", "activity": "Cyber Security (Revision/Units)"},
+                        {"time": "1:00-2:00", "activity": "Lunch + Rest"},
+                        {"time": "2:00-4:00", "activity": "NLP (Revision/Units)"},
+                        {"time": "4:00-5:30", "activity": "Image Processing (Revision/Units)"},
+                        {"time": "5:30-7:00", "activity": "Compiler Practice / Mock Paper"},
+                        {"time": "7:00-8:00", "activity": "Dinner"},
+                        {"time": "8:00-9:30", "activity": "Cyber/NLP/IP (alternate revision)"},
+                        {"time": "9:30-10:00", "activity": "Quick UPSC Writing (1Q)"},
+                        {"time": "10:30", "activity": "Sleep"}
+                    ]
+                },
+                {
+                    "phase_name": "Phase 4: Exam Days",
+                    "date_range": "7 Nov - 17 Nov 2025",
+                    "daily_schedule": [
+                        {"time": "6:30-7:00", "activity": "Wake up"},
+                        {"time": "7:00-8:00", "activity": "UPSC Current Affairs (light)"},
+                        {"time": "8:00-12:00", "activity": "Subject Revision (next exam focus)"},
+                        {"time": "12:00-1:00", "activity": "Lunch"},
+                        {"time": "1:00-4:00", "activity": "Subject Mock Q&A"},
+                        {"time": "4:00-6:00", "activity": "Revision of key formulas/points"},
+                        {"time": "6:00-7:00", "activity": "Break + Dinner"},
+                        {"time": "7:00-9:30", "activity": "Subject Revision (last touch)"},
+                        {"time": "10:00", "activity": "Sleep"}
+                    ],
+                    "exam_allocation": [
+                        {"date": "6 Nov", "focus": "Compiler Full Revision"},
+                        {"date": "7 Nov", "focus": "Compiler Exam"},
+                        {"date": "8-10 Nov", "focus": "Cyber Security Revision"},
+                        {"date": "11 Nov", "focus": "Cyber Security Exam"},
+                        {"date": "12 Nov", "focus": "NLP Full Revision"},
+                        {"date": "13 Nov", "focus": "NLP Exam"},
+                        {"date": "14-16 Nov", "focus": "Image Processing Revision"},
+                        {"date": "17 Nov", "focus": "Image Processing Exam"}
+                    ]
+                }
+            ];
+
+            const phaseNameEl = document.getElementById('phase-name');
+            const phaseDetailsEl = document.getElementById('phase-details');
+            const currentDateInfoEl = document.getElementById('current-date-info');
+            const taskListEl = document.getElementById('task-list');
+            const progressBarEl = document.getElementById('progress-bar');
+            const progressTextEl = document.getElementById('progress-text');
+            const examScheduleSection = document.getElementById('exam-schedule');
+            const examScheduleListEl = document.getElementById('exam-schedule-list');
+            
+            // NOTE: Using a fixed date for demonstration based on user context.
+            // Replace with `new Date()` for real-time use.
+            const now = new Date('2025-10-03T21:14:00');
+
+            function getCurrentPhase(currentDate) {
+                for (const phase of timetableData) {
+                    const [startDateStr, endDateStr] = phase.date_range.split(' - ');
+                    const startDate = new Date(startDateStr);
+                    const endDate = new Date(endDateStr);
+                    // Set hours to end of day for accurate range comparison
+                    endDate.setHours(23, 59, 59, 999);
+
+                    if (currentDate >= startDate && currentDate <= endDate) {
+                        return phase;
+                    }
+                }
+                // Default to first phase if no phase is active (e.g., before Oct 4)
+                return timetableData[0];
+            }
+
+            const currentPhase = getCurrentPhase(now);
+            const schedule = currentPhase.schedule || currentPhase.daily_schedule;
+            let progressState = {};
+
+            function loadProgress() {
+                const savedProgress = localStorage.getItem(`progress_${currentPhase.phase_name}`);
+                if (savedProgress) {
+                    progressState = JSON.parse(savedProgress);
+                } else {
+                    progressState = {};
+                }
+            }
+            
+            function saveProgress() {
+                localStorage.setItem(`progress_${currentPhase.phase_name}`, JSON.stringify(progressState));
+            }
+
+            function renderSchedule() {
+                phaseNameEl.textContent = currentPhase.phase_name;
+                phaseDetailsEl.textContent = currentPhase.date_range.replace(' 2025', ''); // Clean up display
+                currentDateInfoEl.textContent = `Displaying schedule based on current date: ${now.toLocaleDateString()}`;
+
+                if (schedule && schedule.length > 0) {
+                    const ul = document.createElement('ul');
+                    schedule.forEach((task, index) => {
+                        const isCompleted = progressState[index] === true;
+                        const li = document.createElement('li');
+                        li.className = isCompleted ? 'completed' : '';
+                        
+                        li.innerHTML = `
+                            <input type="checkbox" class="task-checkbox" data-index="${index}" ${isCompleted ? 'checked' : ''}>
+                            <span class="time-slot">${task.time}</span>
+                            <span class="activity-details">${task.activity}</span>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    taskListEl.appendChild(ul);
+                } else {
+                    taskListEl.innerHTML = `<p id="no-study-note">${currentPhase.notes}</p>`;
+                }
+
+                if (currentPhase.exam_allocation) {
+                    examScheduleSection.style.display = 'block';
+                    const ul = document.createElement('ul');
+                    currentPhase.exam_allocation.forEach(item => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <span class="time-slot">${item.date}</span>
+                            <span class="activity-details">${item.focus}</span>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    examScheduleListEl.appendChild(ul);
+                }
+            }
+
+            function updateProgress() {
+                const totalTasks = schedule ? schedule.length : 0;
+                if (totalTasks === 0) {
+                    progressBarEl.style.width = '100%';
+                    progressTextEl.textContent = 'No tasks for today!';
+                    progressBarEl.style.backgroundColor = 'var(--subtle-text)';
+                    return;
+                }
+
+                const completedTasks = Object.values(progressState).filter(status => status === true).length;
+                const percentage = Math.round((completedTasks / totalTasks) * 100);
+
+                progressBarEl.style.width = `${percentage}%`;
+                progressBarEl.style.backgroundColor = percentage === 100 ? 'var(--completed-color)' : 'var(--accent-color)';
+                progressTextEl.textContent = `${percentage}% Complete (${completedTasks}/${totalTasks})`;
+            }
+            
+            taskListEl.addEventListener('change', function(e) {
+                if (e.target.matches('.task-checkbox')) {
+                    const index = e.target.dataset.index;
+                    const isChecked = e.target.checked;
+                    
+                    progressState[index] = isChecked;
+                    e.target.closest('li').classList.toggle('completed', isChecked);
+                    
+                    saveProgress();
+                    updateProgress();
+                }
+            });
+
+            // Initial load
+            loadProgress();
+            renderSchedule();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
