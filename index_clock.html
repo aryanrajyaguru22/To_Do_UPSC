@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UPSC & College Daily Schedule</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -35,7 +38,7 @@
             max-width: 800px;
             background-color: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 4px S12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             padding: 25px 35px;
         }
 
@@ -44,6 +47,12 @@
             padding-bottom: 20px;
             margin-bottom: 20px;
         }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
 
         h1 {
             color: var(--text-color);
@@ -51,137 +60,73 @@
             margin: 0;
         }
 
-        #phase-details {
-            font-size: 1rem;
-            color: var(--subtle-text);
-            margin-top: 5px;
-        }
-
-        #datetime-container {
-            font-size: 0.95rem;
-            color: var(--subtle-text);
-            font-weight: 600;
-            margin-top: 12px;
-            background-color: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        
-        #current-date-info {
-            font-size: 0.9rem;
-            color: var(--accent-color);
-            font-weight: 600;
-            background-color: rgba(0, 123, 255, 0.1);
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-top: 15px;
-            display: block; /* Changed to block for better spacing */
-        }
-
-        .progress-section {
-            margin-bottom: 25px;
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            background-color: var(--progress-bar-bg);
-            border-radius: 20px;
-            height: 25px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        #progress-bar {
-            width: 0%;
-            height: 100%;
+        #download-pdf-btn {
             background-color: var(--accent-color);
-            border-radius: 20px;
-            transition: width 0.4s ease-in-out;
-        }
-
-        #progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--text-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        #task-list ul, #exam-schedule-list ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #task-list li, #exam-schedule-list li {
-            display: flex;
-            align-items: center;
-            padding: 15px 10px;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.2s;
-        }
-
-        #task-list li:last-child, #exam-schedule-list li:last-child {
-            border-bottom: none;
-        }
-        
-        #task-list li:hover {
-            background-color: #f8f9fa;
-        }
-
-        #task-list li.completed {
-            opacity: 0.6;
-        }
-
-        #task-list li.completed .activity-details {
-            text-decoration: line-through;
-        }
-
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            margin-right: 20px;
             cursor: pointer;
-            flex-shrink: 0;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #download-pdf-btn:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        #download-pdf-btn:active {
+            transform: translateY(1px);
         }
 
-        .time-slot {
-            font-weight: 600;
-            width: 120px;
-            flex-shrink: 0;
-            color: var(--accent-color);
-        }
+        #phase-details { font-size: 1rem; color: var(--subtle-text); margin-top: 5px; }
+        #datetime-container { font-size: 0.95rem; color: var(--subtle-text); font-weight: 600; margin-top: 12px; background-color: #f8f9fa; padding: 8px 12px; border-radius: 6px; display: inline-block; }
+        #current-date-info { font-size: 0.9rem; color: var(--accent-color); font-weight: 600; background-color: rgba(0, 123, 255, 0.1); padding: 8px 12px; border-radius: 6px; margin-top: 15px; display: block; }
+        h3.day-header { font-size: 1.1rem; color: var(--accent-color); margin-top: 25px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-color); }
+        .progress-section { margin-bottom: 25px; }
+        .progress-bar-container { width: 100%; background-color: var(--progress-bar-bg); border-radius: 20px; height: 25px; overflow: hidden; position: relative; }
+        #progress-bar { width: 0%; height: 100%; background-color: var(--accent-color); border-radius: 20px; transition: width 0.4s ease-in-out; }
+        #progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-color); font-weight: 600; font-size: 0.9rem; }
+        #task-list ul { list-style: none; padding: 0; margin: 0; }
+        #task-list li { display: flex; align-items: center; padding: 15px 10px; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s; }
+        #task-list li:last-child { border-bottom: none; }
+        #task-list li:hover { background-color: #f8f9fa; }
+        #task-list li.completed { opacity: 0.6; }
+        #task-list li.completed .activity-details { text-decoration: line-through; }
+        .task-checkbox { width: 20px; height: 20px; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
+        .time-slot { font-weight: 600; width: 150px; flex-shrink: 0; color: var(--accent-color); }
+        .activity-details { flex-grow: 1; }
+        #no-study-note { text-align: center; padding: 40px; font-size: 1.2rem; color: var(--subtle-text); }
 
-        .activity-details {
-            flex-grow: 1;
+        /* Styles for the hidden printable element */
+        #pdf-content {
+            position: absolute;
+            left: -9999px;
+            top: auto;
+            width: 700px;
+            padding: 20px;
+            background: white;
+            font-family: 'Inter', sans-serif;
+            color: black;
         }
-        
-        #no-study-note {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2rem;
-            color: var(--subtle-text);
-        }
-
-        #exam-schedule {
-            margin-top: 40px;
-        }
-
-        h2 {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
+        #pdf-content h2, #pdf-content h3 { color: #333; }
+        #pdf-content table { width: 100%; border-collapse: collapse; }
+        #pdf-content th, #pdf-content td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        #pdf-content th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1 id="phase-name">Loading Schedule...</h1>
-            <p id="phase-details"></p>
+            <div class="header-top">
+                <div>
+                    <h1 id="phase-name">Loading Schedule...</h1>
+                    <p id="phase-details"></p>
+                </div>
+                <button id="download-pdf-btn">Download Daily Report</button>
+            </div>
             <div id="datetime-container">
                 <span id="current-date"></span> &nbsp;|&nbsp; <span id="current-time"></span>
             </div>
@@ -196,88 +141,105 @@
         </section>
 
         <main id="task-list"></main>
-        
-        <section id="exam-schedule" style="display:none;">
-            <h2>Exam Focus</h2>
-            <div id="exam-schedule-list"></div>
-        </section>
     </div>
+    
+    <div id="pdf-content"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const { jsPDF } = window.jspdf;
             const timetableData = [
                 {
-                     "phase_name": "Phase 1: UPSC + College Prep" /* [cite: 1] */,
-                     "date_range": "4 Oct - 17 Oct 2025" /* [cite: 1] */,
+                    "phase_name": "Phase 1: Before Festival",
+                    "date_range": "4 Oct - 17 Oct 2025",
                     "schedule": [
-                         {"time": "6:30-7:00", "activity": "Wake up + Exercise"} /*   */,
-                         {"time": "7:00-9:30", "activity": "UPSC GS (History/Polity/Economy)"} /*   */,
-                         {"time": "9:30-10:00", "activity": "Breakfast"} /*   */,
-                         {"time": "10:00-12:30", "activity": "UPSC Optional / NCERT Foundation"} /*   */,
-                         {"time": "12:30-1:00", "activity": "Lunch"} /*   */,
-                         {"time": "1:00-3:00", "activity": "Compiler Design (Units)"} /*   */,
-                         {"time": "3:00-4:00", "activity": "Break / Walk"} /*   */,
-                         {"time": "4:00-6:00", "activity": "Cyber Security / NLP (alternate)"} /*   */,
-                         {"time": "6:00-7:00", "activity": "UPSC Current Affairs + Notes"} /*   */,
-                         {"time": "7:00-8:00", "activity": "Dinner"} /*   */,
-                         {"time": "8:00-9:30", "activity": "Image Processing / NLP (alternate)"} /*   */,
-                         {"time": "9:30-10:15", "activity": "UPSC Answer Writing (1 Q/Essay)"} /*   */,
-                         {"time": "10:30", "activity": "Sleep"} /*   */
+                        {"time": "6:45-7:00", "activity": "Wake up"},
+                        {"time": "7:00-7:30", "activity": "Freshen up + Meditation"},
+                        {"time": "7:30-8:00", "activity": "Breakfast"},
+                        {"time": "8:00-9:00", "activity": "UPSC Current Affairs (Newspaper + Notes)"},
+                        {"time": "9:00-12:00", "activity": "Compiler Design (Unit-wise study)"},
+                        {"time": "12:00-12:30", "activity": "Break + Relax"},
+                        {"time": "12:30-1:30", "activity": "Compiler Design Numericals/Examples"},
+                        {"time": "1:30-2:30", "activity": "Lunch + Rest"},
+                        {"time": "2:30-3:00", "activity": "UPSC Quick Revision (Polity/History)"},
+                        {"time": "3:00-6:00", "activity": "Compiler Design PYQs + Notes"},
+                        {"time": "6:00-7:00", "activity": "Evening Walk + Snacks"},
+                        {"time": "7:00-8:30", "activity": "UPSC GS (Static subject – Polity/Geography)"},
+                        {"time": "8:30-9:00", "activity": "Dinner"},
+                        {"time": "9:00-11:00", "activity": "UPSC Optional / NCERT / Essay Writing"},
+                        {"time": "11:00-11:15", "activity": "Plan for tomorrow + Sleep"}
                     ]
                 },
                 {
-                     "phase_name": "Phase 2: Festival Holidays" /*   */,
-                     "date_range": "18 Oct - 25 Oct 2025" /*   */,
-                    "schedule": [],
-                    "notes": "Full Day Holiday (Diwali & New Year). No Study."  /*   */
-                },
-                {
-                     "phase_name": "Phase 3: Exam-Oriented Prep" /* [cite: 5] */,
-                     "date_range": "26 Oct - 6 Nov 2025" /* [cite: 5] */,
+                    "phase_name": "Phase 2: Festival",
+                    "date_range": "18 Oct - 25 Oct 2025",
                     "schedule": [
-                         {"time": "6:30-7:00", "activity": "Wake up & News"} /*   */,
-                         {"time": "7:00-8:00", "activity": "UPSC GS Quick Notes"} /*   */,
-                         {"time": "8:00-9:00", "activity": "UPSC Current Affairs"} /*   */,
-                         {"time": "9:00-11:00", "activity": "Compiler Design (Revision/Units)"} /*   */,
-                         {"time": "11:00-1:00", "activity": "Cyber Security (Revision/Units)"} /*   */,
-                         {"time": "1:00-2:00", "activity": "Lunch + Rest"} /*   */,
-                         {"time": "2:00-4:00", "activity": "NLP (Revision/Units)"} /*   */,
-                         {"time": "4:00-5:30", "activity": "Image Processing (Revision/Units)"} /*   */,
-                         {"time": "5:30-7:00", "activity": "Compiler Practice / Mock Paper"} /*   */,
-                         {"time": "7:00-8:00", "activity": "Dinner"} /*   */,
-                         {"time": "8:00-9:30", "activity": "Cyber/NLP/IP (alternate revision)"} /*   */,
-                         {"time": "9:30-10:00", "activity": "Quick UPSC Writing (1Q)"} /*   */,
-                         {"time": "10:30", "activity": "Sleep"} /*   */
-                    ]
-                },
-                {
-                     "phase_name": "Phase 4: Exam Days" /*   */,
-                     "date_range": "7 Nov - 17 Nov 2025" /*   */,
-                    "daily_schedule": [
-                         {"time": "6:30-7:00", "activity": "Wake up"} /*   */,
-                         {"time": "7:00-8:00", "activity": "UPSC Current Affairs (light)"} /*   */,
-                         {"time": "8:00-12:00", "activity": "Subject Revision (next exam focus)"} /*   */,
-                         {"time": "12:00-1:00", "activity": "Lunch"} /*   */,
-                         {"time": "1:00-4:00", "activity": "Subject Mock Q&A"} /*   */,
-                         {"time": "4:00-6:00", "activity": "Revision of key formulas/points"} /*   */,
-                         {"time": "6:00-7:00", "activity": "Break + Dinner"} /*   */,
-                         {"time": "7:00-9:30", "activity": "Subject Revision (last touch)"} /*   */,
-                         {"time": "10:00", "activity": "Sleep"} /*   */
+                        {"time": "6:45-7:30", "activity": "Wake up + Freshen up"},
+                        {"time": "7:30-8:00", "activity": "Breakfast"},
+                        {"time": "8:00-9:00", "activity": "UPSC Current Affairs (light reading)"},
+                        {"time": "9:00-11:00", "activity": "UPSC NCERT Reading / Light Revision"}
                     ],
-                    "exam_allocation": [
-                         {"date": "6 Nov", "focus": "Compiler Full Revision"} /*   */,
-                         {"date": "7 Nov", "focus": "Compiler Exam"} /*   */,
-                         {"date": "8-10 Nov", "focus": "Cyber Security Revision"} /*   */,
-                         {"date": "11 Nov", "focus": "Cyber Security Exam"} /*   */,
-                         {"date": "12 Nov", "focus": "NLP Full Revision"} /*   */,
-                         {"date": "13 Nov", "focus": "NLP Exam"} /*   */,
-                         {"date": "14-16 Nov", "focus": "Image Processing Revision"} /*   */,
-                         {"date": "17 Nov", "focus": "Image Processing Exam"} /*   */
+                    "notes": "Daytime is for festival celebrations, family, and outings."
+                },
+                {
+                    "phase_name": "Phase 3: Post-Festival & Exam Prep",
+                    "date_range": "26 Oct - 6 Nov 2025",
+                    "schedule": [
+                        {"time": "6:45-7:30", "activity": "Wake up + Freshen up"},
+                        {"time": "7:30-8:00", "activity": "Breakfast"},
+                        {"time": "8:00-9:00", "activity": "UPSC Current Affairs"},
+                        {"time": "9:00-12:00", "activity": "Compiler Design (Finish Units & Revise)"},
+                        {"time": "12:00-12:30", "activity": "Short Break"},
+                        {"time": "12:30-1:30", "activity": "Compiler Design PYQs / Problems"},
+                        {"time": "1:30-2:30", "activity": "Lunch + Rest"},
+                        {"time": "2:30-3:00", "activity": "UPSC Quick Note Revision"},
+                        {"time": "3:00-6:00", "activity": "Compiler Design Revision + Cyber Security basics"},
+                        {"time": "6:00-7:00", "activity": "Evening Walk + Tea"},
+                        {"time": "7:00-8:30", "activity": "UPSC GS (History/Economy)"},
+                        {"time": "8:30-9:00", "activity": "Dinner"},
+                        {"time": "9:00-11:00", "activity": "UPSC Optional / Essay Practice"},
+                        {"time": "11:00", "activity": "Sleep"}
+                    ]
+                },
+                {
+                    "phase_name": "Phase 4: Exam Week",
+                    "date_range": "7 Nov - 17 Nov 2025",
+                    "daily_plans": [
+                        { "day": "7 Nov", "tasks": [
+                            {"time": "Morning", "activity": "Quick Revision (Formulas/Concepts)"},
+                            {"time": "After Exam", "activity": "Rest + Light UPSC reading"}
+                        ]},
+                        { "day": "8 – 10 Nov", "tasks": [
+                            {"time": "9:00–12:00", "activity": "Cyber Security Units"},
+                            {"time": "3:00–6:00", "activity": "PYQs + Case Studies"},
+                            {"time": "9:00–11:00", "activity": "UPSC GS3 (Economy + Security issues)"}
+                        ]},
+                        { "day": "11 Nov", "tasks": [
+                            {"time": "Morning", "activity": "Cyber full revision"},
+                            {"time": "Evening", "activity": "Rest + UPSC light study"}
+                        ]},
+                        { "day": "12 Nov", "tasks": [
+                            {"time": "9:00–12:00", "activity": "NLP Units 1–4"},
+                            {"time": "3:00–6:00", "activity": "NLP Units 5–8"},
+                            {"time": "9:00–11:00", "activity": "UPSC Essay practice"}
+                        ]},
+                        { "day": "13 Nov", "tasks": [
+                            {"time": "Morning", "activity": "NLP Revision"},
+                            {"time": "Evening", "activity": "Rest + UPSC GS4"}
+                        ]},
+                        { "day": "14 – 16 Nov", "tasks": [
+                            {"time": "9:00–12:00", "activity": "IP Units 1–7"},
+                            {"time": "3:00–6:00", "activity": "IP PYQs + Notes"},
+                            {"time": "9:00–11:00", "activity": "UPSC Optional"}
+                        ]},
+                        { "day": "17 Nov", "tasks": [
+                            {"time": "Morning", "activity": "Quick IP Revision"},
+                            {"time": "After Exam", "activity": "Relax + Resume UPSC full-time prep 🎉"}
+                        ]}
                     ]
                 }
             ];
 
-            // Get references to all HTML elements
             const phaseNameEl = document.getElementById('phase-name');
             const phaseDetailsEl = document.getElementById('phase-details');
             const currentDateInfoEl = document.getElementById('current-date-info');
@@ -286,14 +248,14 @@
             const taskListEl = document.getElementById('task-list');
             const progressBarEl = document.getElementById('progress-bar');
             const progressTextEl = document.getElementById('progress-text');
-            const examScheduleSection = document.getElementById('exam-schedule');
-            const examScheduleListEl = document.getElementById('exam-schedule-list');
+            const downloadPdfBtn = document.getElementById('download-pdf-btn');
             
-            // NOTE: Using a fixed date for schedule phase detection based on user context.
-            // The live clock below uses the actual current time.
-            const phaseDetectionDate = new Date('2025-10-03T21:18:59');
+            const phaseDetectionDate = new Date('2025-10-04T08:34:19');
 
-            // --- Real-Time Clock Function ---
+            let currentPhase;
+            let progressState = {};
+            let totalTasks = 0;
+
             function updateTime() {
                 const now = new Date();
                 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -307,25 +269,14 @@
                     const startDate = new Date(startDateStr);
                     const endDate = new Date(endDateStr);
                     endDate.setHours(23, 59, 59, 999);
-
-                    if (currentDate >= startDate && currentDate <= endDate) {
-                        return phase;
-                    }
+                    if (currentDate >= startDate && currentDate <= endDate) return phase;
                 }
-                return timetableData[0]; // Default to first phase if outside all ranges
+                return timetableData[0];
             }
-
-            const currentPhase = getCurrentPhase(phaseDetectionDate);
-            const schedule = currentPhase.schedule || currentPhase.daily_schedule;
-            let progressState = {};
 
             function loadProgress() {
                 const savedProgress = localStorage.getItem(`progress_${currentPhase.phase_name}`);
-                if (savedProgress) {
-                    progressState = JSON.parse(savedProgress);
-                } else {
-                    progressState = {};
-                }
+                progressState = savedProgress ? JSON.parse(savedProgress) : {};
             }
             
             function saveProgress() {
@@ -337,73 +288,164 @@
                 phaseDetailsEl.textContent = currentPhase.date_range.replace(' 2025', '');
                 currentDateInfoEl.textContent = `Schedule displayed for phase covering: ${phaseDetectionDate.toLocaleDateString()}`;
 
-                if (schedule && schedule.length > 0) {
-                    const ul = document.createElement('ul');
-                    schedule.forEach((task, index) => {
-                        const isCompleted = progressState[index] === true;
-                        const li = document.createElement('li');
-                        li.className = isCompleted ? 'completed' : '';
-                        li.innerHTML = `
-                            <input type="checkbox" class="task-checkbox" data-index="${index}" ${isCompleted ? 'checked' : ''}>
-                            <span class="time-slot">${task.time}</span>
-                            <span class="activity-details">${task.activity}</span>
-                        `;
-                        ul.appendChild(li);
-                    });
-                    taskListEl.appendChild(ul);
-                } else {
-                    taskListEl.innerHTML = `<p id="no-study-note">${currentPhase.notes}</p>`;
-                }
+                let taskCounter = 0;
+                let listHtml = "<ul>";
 
-                if (currentPhase.exam_allocation) {
-                    examScheduleSection.style.display = 'block';
-                    const ul = document.createElement('ul');
-                    currentPhase.exam_allocation.forEach(item => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <span class="time-slot">${item.date}</span>
-                            <span class="activity-details">${item.focus}</span>
-                        `;
-                        ul.appendChild(li);
+                if (currentPhase.schedule) {
+                    currentPhase.schedule.forEach((task, index) => {
+                        const isCompleted = progressState[index] === true;
+                        listHtml += `<li class="${isCompleted ? 'completed' : ''}"><input type="checkbox" class="task-checkbox" data-index="${index}" ${isCompleted ? 'checked' : ''}><span class="time-slot">${task.time}</span><span class="activity-details">${task.activity}</span></li>`;
+                        taskCounter++;
                     });
-                    examScheduleListEl.appendChild(ul);
+                } else if (currentPhase.daily_plans) {
+                    currentPhase.daily_plans.forEach(plan => {
+                        listHtml += `<li><h3 class="day-header">${plan.day}</h3></li>`;
+                        plan.tasks.forEach(task => {
+                            const isCompleted = progressState[taskCounter] === true;
+                            listHtml += `<li class="${isCompleted ? 'completed' : ''}"><input type="checkbox" class="task-checkbox" data-index="${taskCounter}" ${isCompleted ? 'checked' : ''}><span class="time-slot">${task.time}</span><span class="activity-details">${task.activity}</span></li>`;
+                            taskCounter++;
+                        });
+                    });
                 }
+                
+                listHtml += "</ul>";
+                
+                if (taskCounter > 0) {
+                    taskListEl.innerHTML = listHtml;
+                    if(currentPhase.notes) taskListEl.innerHTML += `<p id="no-study-note">${currentPhase.notes}</p>`;
+                } else {
+                    taskListEl.innerHTML = `<p id="no-study-note">${currentPhase.notes || 'No tasks for this phase.'}</p>`;
+                }
+                
+                totalTasks = taskCounter;
             }
 
             function updateProgress() {
-                const totalTasks = schedule ? schedule.length : 0;
                 if (totalTasks === 0) {
                     progressBarEl.style.width = '100%';
                     progressTextEl.textContent = 'No tasks for this phase!';
                     progressBarEl.style.backgroundColor = 'var(--subtle-text)';
                     return;
                 }
-
                 const completedTasks = Object.values(progressState).filter(status => status === true).length;
                 const percentage = Math.round((completedTasks / totalTasks) * 100);
-
                 progressBarEl.style.width = `${percentage}%`;
                 progressBarEl.style.backgroundColor = percentage === 100 ? 'var(--completed-color)' : 'var(--accent-color)';
                 progressTextEl.textContent = `${percentage}% Complete (${completedTasks}/${totalTasks})`;
             }
-            
+
+            function generatePdfForToday() {
+                const today = new Date(); // Use real date for PDF
+                const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+                const todayFormatted = today.toLocaleDateString('en-IN', dateOptions);
+
+                let tasksForToday = [];
+                let planTitle = `Daily Plan - ${currentPhase.phase_name}`;
+                let globalTaskIndex = 0;
+
+                if (currentPhase.schedule) {
+                    tasksForToday = currentPhase.schedule.map((task, index) => ({...task, globalIndex: index}));
+                } else if (currentPhase.daily_plans) {
+                    // Find the plan for today in Exam week
+                    let foundPlan = null;
+                    for (const plan of currentPhase.daily_plans) {
+                        const dayStr = plan.day.split('(')[0].trim();
+                        const year = today.getFullYear();
+                        if (dayStr.includes('–')) {
+                            const [startDayStr, endDayStr] = dayStr.split('–').map(s => s.trim());
+                            const startDate = new Date(`${startDayStr} ${year}`);
+                            const endDate = new Date(`${endDayStr} ${year}`);
+                            endDate.setHours(23, 59, 59, 999);
+                            if (today >= startDate && today <= endDate) {
+                                foundPlan = plan;
+                                break;
+                            }
+                        } else {
+                            const planDate = new Date(`${dayStr} ${year}`);
+                            if (planDate.toDateString() === today.toDateString()) {
+                                foundPlan = plan;
+                                break;
+                            }
+                        }
+                    }
+                    if (foundPlan) {
+                        planTitle = `Plan for: ${foundPlan.day}`;
+                        // Find the starting global index of this plan's tasks
+                        let baseIndex = 0;
+                        for(const p of currentPhase.daily_plans){
+                            if(p.day === foundPlan.day) break;
+                            baseIndex += p.tasks.length;
+                        }
+                        tasksForToday = foundPlan.tasks.map((task, index) => ({...task, globalIndex: baseIndex + index}));
+                    }
+                }
+
+                if (tasksForToday.length === 0) {
+                    alert("No specific tasks found for today to generate a report.");
+                    return;
+                }
+
+                // Build HTML for PDF
+                let pdfHtml = `
+                    <h2>Daily Task Report</h2>
+                    <p><strong>Date:</strong> ${todayFormatted}</p>
+                    <h3>${planTitle}</h3>
+                    <table>
+                        <tr>
+                            <th style="width:25%;">Status</th>
+                            <th style="width:25%;">Time</th>
+                            <th>Activity</th>
+                        </tr>`;
+                
+                tasksForToday.forEach(task => {
+                    const isCompleted = progressState[task.globalIndex] === true;
+                    pdfHtml += `
+                        <tr>
+                            <td>${isCompleted ? '☑️ Completed' : '☐ Pending'}</td>
+                            <td>${task.time}</td>
+                            <td>${task.activity}</td>
+                        </tr>`;
+                });
+                
+                pdfHtml += `</table>`;
+                
+                const pdfContentEl = document.getElementById('pdf-content');
+                pdfContentEl.innerHTML = pdfHtml;
+                
+                downloadPdfBtn.textContent = "Generating...";
+                downloadPdfBtn.disabled = true;
+
+                html2canvas(pdfContentEl).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`daily_report_${today.toISOString().split('T')[0]}.pdf`);
+                    
+                    downloadPdfBtn.textContent = "Download Daily Report";
+                    downloadPdfBtn.disabled = false;
+                });
+            }
+
+            // --- EVENT LISTENERS ---
             taskListEl.addEventListener('change', function(e) {
                 if (e.target.matches('.task-checkbox')) {
                     const index = e.target.dataset.index;
-                    const isChecked = e.target.checked;
-                    progressState[index] = isChecked;
-                    e.target.closest('li').classList.toggle('completed', isChecked);
+                    progressState[index] = e.target.checked;
+                    e.target.closest('li').classList.toggle('completed', e.target.checked);
                     saveProgress();
                     updateProgress();
                 }
             });
 
+            downloadPdfBtn.addEventListener('click', generatePdfForToday);
+
             // --- INITIALIZATION ---
-            // Run the clock immediately and then every second
             updateTime();
             setInterval(updateTime, 1000);
-
-            // Load the rest of the application
+            
+            currentPhase = getCurrentPhase(phaseDetectionDate);
             loadProgress();
             renderSchedule();
             updateProgress();
