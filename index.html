@@ -45,9 +45,13 @@
         header { border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px; }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { color: var(--text-color); font-size: 1.8rem; margin: 0; }
-        #download-pdf-btn { background-color: var(--accent-color); color: white; border: none; border-radius: 8px; padding: 10px 15px; font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        #download-pdf-btn:hover { background-color: #0056b3; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-        #download-pdf-btn:active { transform: translateY(1px); }
+        .header-buttons { display: flex; gap: 10px; }
+        #download-pdf-btn, #show-clock-btn { background-color: var(--accent-color); color: white; border: none; border-radius: 8px; padding: 10px 15px; font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        #download-pdf-btn:hover, #show-clock-btn:hover { background-color: #0056b3; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        #download-pdf-btn:active, #show-clock-btn:active { transform: translateY(1px); }
+        #show-clock-btn { background-color: #17a2b8; }
+        #show-clock-btn:hover { background-color: #138496; }
+
         #phase-details { font-size: 1rem; color: var(--subtle-text); margin-top: 5px; }
         #datetime-container { font-size: 0.95rem; color: var(--subtle-text); font-weight: 600; margin-top: 12px; background-color: #f8f9fa; padding: 8px 12px; border-radius: 6px; display: inline-block; }
         h3.day-header { font-size: 1.1rem; color: var(--accent-color); margin-top: 25px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-color); }
@@ -71,6 +75,90 @@
         #pdf-content table { width: 100%; border-collapse: collapse; }
         #pdf-content th, #pdf-content td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         #pdf-content th { background-color: #f2f2f2; }
+
+        /* --- Full Screen Clock Styles --- */
+        #fullscreen-clock-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(20, 30, 40, 0.95);
+            color: white;
+            z-index: 1000;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #fullscreen-clock-overlay.visible {
+            display: flex;
+            opacity: 1;
+        }
+        #close-clock-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            font-weight: 300;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: transform 0.2s, color 0.2s;
+        }
+        #close-clock-btn:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+        #fullscreen-time {
+            font-size: clamp(4rem, 20vw, 9rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        #fullscreen-date {
+            font-size: clamp(1rem, 5vw, 1.5rem);
+            margin-top: -10px;
+            opacity: 0.9;
+        }
+        #motivation-container {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            font-style: italic;
+            max-width: 600px;
+            opacity: 0.8;
+        }
+        #missed-tasks-container {
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 25px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #missed-tasks-container h3 {
+            margin-top: 0;
+            color: #17a2b8;
+        }
+        #missed-tasks-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        #missed-tasks-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #missed-tasks-list li:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -82,7 +170,10 @@
                     <h1 id="phase-name">Loading Schedule...</h1>
                     <p id="phase-details"></p>
                 </div>
-                <button id="download-pdf-btn">Download Daily Report</button>
+                <div class="header-buttons">
+                    <button id="show-clock-btn">Focus Clock</button>
+                    <button id="download-pdf-btn">Download Daily Report</button>
+                </div>
             </div>
             <div id="datetime-container">
                 <span id="current-date"></span> &nbsp;|&nbsp; <span id="current-time"></span>
@@ -101,6 +192,21 @@
     
     <div id="pdf-content"></div>
 
+    <div id="fullscreen-clock-overlay">
+        <button id="close-clock-btn">&times;</button>
+        <div id="clock-container">
+            <div id="fullscreen-time"></div>
+            <div id="fullscreen-date"></div>
+        </div>
+        <div id="motivation-container">
+            <p id="motivational-quote"></p>
+        </div>
+        <div id="missed-tasks-container">
+            <h3>Missed Tasks</h3>
+            <ul id="missed-tasks-list"></ul>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const { jsPDF } = window.jspdf;
@@ -116,6 +222,25 @@
             let progressState = {};
             let totalTasks = 0;
             let allTasksForPhase = [];
+
+            // --- CLOCK AND MOTIVATION VARIABLES ---
+            const clockOverlay = document.getElementById('fullscreen-clock-overlay');
+            const showClockBtn = document.getElementById('show-clock-btn');
+            const closeClockBtn = document.getElementById('close-clock-btn');
+            const fullscreenTimeEl = document.getElementById('fullscreen-time');
+            const fullscreenDateEl = document.getElementById('fullscreen-date');
+            const quoteEl = document.getElementById('motivational-quote');
+            const missedTasksListEl = document.getElementById('missed-tasks-list');
+            let clockInterval = null;
+            const quotes = [
+                "The secret of getting ahead is getting started.",
+                "Don't watch the clock; do what it does. Keep going.",
+                "Success is the sum of small efforts, repeated day in and day out.",
+                "The expert in anything was once a beginner.",
+                "Believe you can and you're halfway there.",
+                "The only way to do great work is to love what you do.",
+                "Discipline is the bridge between goals and accomplishment."
+            ];
 
             // --- TIME PARSING AND FORMATTING LOGIC ---
             function get24Hour(hour12, timeString) {
@@ -229,15 +354,10 @@
                 document.getElementById('progress-text').textContent = `${percentage}% Complete (${completedTasks}/${totalTasks})`;
             }
 
-            /**
-             * --- UPDATED ---
-             * This function now implements the "two-task active window" logic.
-             */
             function updateCheckboxStates() {
                 const now = new Date();
                 const actualTasks = allTasksForPhase.filter(t => t.time);
 
-                // Find the index of the currently active task
                 let activeIndex = -1;
                 for (let i = 0; i < actualTasks.length; i++) {
                     const task = actualTasks[i];
@@ -246,8 +366,8 @@
                     if (!startTime) continue;
                     
                     let cutoffTime = (nextTask ? getStartTime(nextTask.time) : null) || getEndTime(task.time);
-                    if(i === actualTasks.length - 1) { // Apply grace period for the last task
-                         cutoffTime = new Date(getEndTime(task.time).getTime() + 60 * 60 * 1000);
+                    if(i === actualTasks.length - 1) { 
+                        cutoffTime = new Date(getEndTime(task.time).getTime() + 60 * 60 * 1000);
                     }
 
                     if (now >= startTime && now < cutoffTime) {
@@ -256,13 +376,11 @@
                     }
                 }
                 
-                // Now enable/disable checkboxes based on the active index
                 document.querySelectorAll('#task-list li[data-index]').forEach((li, listIndex) => {
                     const task = actualTasks[listIndex];
                     if (task) {
-                        // A task is interactive if it is the active one OR the one just before it.
                         const isInteractive = (listIndex === activeIndex || listIndex === activeIndex - 1);
-                        const hasNoTime = !getStartTime(task.time); // Always enable tasks with no time
+                        const hasNoTime = !getStartTime(task.time);
 
                         li.querySelector('.task-checkbox').disabled = !isInteractive && !hasNoTime;
                         li.classList.toggle('task-disabled', !isInteractive && !hasNoTime);
@@ -271,7 +389,7 @@
             }
             
             function generatePdfForToday() {
-                 const today = new Date();
+                const today = new Date();
                 const todayFormatted = today.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
                 let tasksForToday = [], planTitle = `Daily Plan - ${currentPhase.phase_name}`;
                 if (currentPhase.schedule) {
@@ -304,6 +422,55 @@
                 });
             }
 
+            // --- FULL SCREEN CLOCK FUNCTIONS ---
+            function updateFullscreenClock() {
+                const now = new Date();
+                fullscreenTimeEl.textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                fullscreenDateEl.textContent = now.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+            function displayMotivation() {
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                quoteEl.textContent = `"${quotes[randomIndex]}"`;
+            }
+            function checkForMissedTasks() {
+                missedTasksListEl.innerHTML = '';
+                const now = new Date();
+                let missedTasksCount = 0;
+                let taskCounter = 0;
+
+                allTasksForPhase.forEach((task, globalIndex) => {
+                    if (task.day_header || !task.activity) return; // Skip headers/empty tasks
+
+                    const isCompleted = progressState[taskCounter] === true;
+                    if (isCompleted || !task.time) {
+                        taskCounter++;
+                        return;
+                    }
+
+                    // Find the next task with a time slot to determine the end time
+                    let nextTaskWithTime = null;
+                    for (let j = globalIndex + 1; j < allTasksForPhase.length; j++) {
+                        if (allTasksForPhase[j].time) {
+                            nextTaskWithTime = allTasksForPhase[j];
+                            break;
+                        }
+                    }
+                    const endTime = (nextTaskWithTime ? getStartTime(nextTaskWithTime.time) : getEndTime(task.time));
+
+                    if (endTime && endTime < now) {
+                        missedTasksCount++;
+                        const li = document.createElement('li');
+                        li.textContent = `${formatTimeWithAmPm(task.time)}: ${task.activity}`;
+                        missedTasksListEl.appendChild(li);
+                    }
+                    taskCounter++;
+                });
+
+                if (missedTasksCount === 0) {
+                    missedTasksListEl.innerHTML = '<li>Great job! You are on track. No missed tasks.</li>';
+                }
+            }
+
             // --- EVENT LISTENERS & INITIALIZATION ---
             document.getElementById('task-list').addEventListener('change', function(e) {
                 if (e.target.matches('.task-checkbox')) {
@@ -317,6 +484,23 @@
             });
             document.getElementById('download-pdf-btn').addEventListener('click', generatePdfForToday);
             
+            showClockBtn.addEventListener('click', () => {
+                clockOverlay.classList.add('visible');
+                // Run updates once immediately on open
+                updateFullscreenClock();
+                displayMotivation();
+                checkForMissedTasks();
+                // Start interval for the clock
+                if (clockInterval) clearInterval(clockInterval);
+                clockInterval = setInterval(updateFullscreenClock, 1000);
+            });
+            closeClockBtn.addEventListener('click', () => {
+                clockOverlay.classList.remove('visible');
+                // Stop the interval when closed to save resources
+                if (clockInterval) clearInterval(clockInterval);
+            });
+
+            // Initial Load
             updateTime();
             setInterval(updateTime, 1000);
             
